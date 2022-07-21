@@ -1,0 +1,283 @@
+openapi: 3.0.1
+info:
+  title: FILM
+  description: 'CINEMA STD21001'
+  version: 1.0.0
+servers:
+- url: https://std21001.com
+tags:
+- name: Films
+
+paths:
+  /film:
+    get:
+      tags:
+      - Films
+      summary: Get all films
+      operationId: getFilms 
+      description: 'Get all films with details'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: page_size
+        in: query
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: List of films
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Films'
+        400:
+          description: Bad request
+
+    post:
+      tags:
+      - Films
+      summary: Create new film
+      operationId: createNewFilms
+      description: Create new film from an array
+      requestBody:
+        description: film to be created
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateFilms'
+      responses:
+        200:
+          description: film created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Films'
+        400:
+          description: Bad request
+    put:
+      tags:
+      - Films
+      summary: Update all informations about film
+      operationId: UpdatingIntegratefilm
+      description: Update existing film
+      requestBody:
+        description: film to be changed
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Films'
+      responses:
+          200:
+            description: film Updated
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Films'
+          400:
+            description: Bad request
+    patch:
+      tags:
+      - Films
+      summary: Update existing film 
+      description: |
+        Possible updates openapi:
+        * titre: change
+        * date_sortie: change
+        * durée: change
+        * salle_projection: change
+      operationId: UpdateExistingfilm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/Films'
+            examples:
+              changeTitre:
+                summary: Change titre
+                description: How to change titre
+                value:
+                  id: 1
+                  name: "Nouveau titre"
+              changeDateSortie:
+                summary: Changer la date de sortie 
+                value:
+                  id: 1
+                  name: "date de sortie"
+              changeDurée:
+                summary: Changer la durée du film
+                value:
+                  id: 1
+                  durée: "1:57:03"
+              changeRoom:
+                summary: changer la salle de projection
+                value:
+                  id: 1
+                  enum: [A,B]
+      responses:
+          200:
+            description: film Updated
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/Films'
+
+          400:
+            description: Bad request
+
+  /film{id}:
+      get: 
+        tags:
+          - Films
+        summary: Get a film by identifier
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema: 
+              type: integer
+        responses:
+          200:
+            description: the film
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CreateFilms'
+
+          400:
+            description: Bad request
+      put:
+        tags:
+          - Films
+        summary: update all about a film 
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema:
+              type: integer
+        responses:
+          200:
+            description: the film by id is updated
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Films'
+          400:
+            description: Bad request
+      patch:
+        tags:
+          - Films
+        summary: update elements about film
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema:
+              type: integer
+        responses:
+          200:
+            description: the film is partially updated
+            content:
+              application/json:
+                schema:
+                  type: integer
+                  items:
+                    $ref: '#/components/schemas/Films'
+      delete:
+        tags:
+          - Films
+        summary: delete a film by identifier
+        operationId: delete a film
+        parameters:
+          - name: id
+            in: path
+            required: true
+            schema:
+              type: integer
+        responses:
+          200:
+            description: film deleted
+            content: {}
+          401:
+            description: Unauthorized 
+
+ 
+
+components:
+  schemas:
+    Films:
+      allOf:
+        - $ref: '#/components/schemas/CreateFilms'
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10     
+    CreateFilms:
+      type: object
+      properties:
+        Titre:
+          type: string
+          example: "Midnigth Sun"
+        Durée:
+          type: string
+          format: date
+          example: "2:04:15"
+        Résume:
+          type: string
+        Réalisateur:
+          type: string
+          example: "nom_realisateur"
+        DateSortie:
+          type: string
+          format: date
+          example: "2022-07-27"
+        SalleProject:
+          items:
+            $ref: '#/components/schemas/Salle'
+    Salle: 
+      type: object
+      properties:
+        Places:
+          type: string
+          example: 'A'
+          enum:
+            - A
+            - B
+        
+    Projection:
+      allOf:
+      - $ref: '#/components/schemas/Films'
+      - $ref: '#/components/schemas/Salle'
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        diffusion:
+          type: string
+          format: date
+          example: "21:30"
+    
+       
+        
+      
+  
