@@ -7,6 +7,8 @@ servers:
 - url: https://std21001.com
 tags:
 - name: Films
+- name: Projection
+- name: Categories
 
 paths:
   /film:
@@ -218,8 +220,271 @@ paths:
             content: {}
           401:
             description: Unauthorized 
+  /projection:
+    get:
+      tags:
+        - Projection
+      summary: Get all projections
+      operationId: getProjection 
+      description: 'Get all projections with details'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: page_size
+        in: query
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: the projection
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/GetFilm'
+        400:
+          description: bad request
+    post:
+      tags:
+        - Projection
+      summary: create new projection
+      operationId: newProject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              type: array
+              items:
+                $ref: '#/components/schemas/Projection'
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Films'
+        400:
+          description: Bad request
+    put:
+      tags:
+        - Projection
+      summary: update projection
+      operationId: update all info
+      parameters:
+      - name: id
+        in: query
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Projection'
+        400:
+          description: Bad request
+    patch:
+      tags:
+        - Projection
+      summary: upadate existing projection
+      description: |
+        Possible updates openapi:
+          * titre: change
+          * salle_projection: change
+          * diffusion: change
+      operationId: projectUpdated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/Projection'
+            examples:
+              changeTitre:
+                summary: Change titre
+                value:
+                  id: 1
+                  name: "Nouveau titre"
+              changeRoom:
+                summary: changer la salle de projection
+                value:
+                  id: 1
+                  enum: [A,B]
+              changeDiffusion:
+                summary: changer l'heure de diffusion
+                value:
+                  id: 2
+                  hour: "18:00"
+      responses:
+        200:
+          description: projection updated
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Projection'
+        404:
+          description: not found
+  /projection/{id}:
+    delete:
+      tags:
+        - Projection
+      summary: delete a projection
+      description: want to delete a projection
+      operationId: delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: projection deleted
+          content: {}
+        401:
+          description: Unauthorized 
+  /categorie:
+    get: 
+      tags:
+        - Categories
+      summary: get all categories
+      description: categories
+      operationId: getCategories
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: list of categories
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Categories'
+        400:
+          description: Bad request
+          content: {}
+    post:
+      tags:
+        - Categories
+      summary: create new category
+      operationId: newCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              type: array
+              items:
+                $ref: '#/components/schemas/Catégorie'
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Catégorie'
+        400:
+          description: Bad request
+    put:
+      tags:
+        - Categories
+      summary: update categorie
+      operationId: update all about category
+      parameters:
+      - name: id
+        in: query
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Catégorie'
+        400:
+          description: Bad request
+    patch:
+      tags:
+        - Categories
+      summary: update categorie partially
+      description: |
+        Possible updates openapi:
+          * categorie_name: chage
+      operationId: categoUpdated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/Catégorie'
+            examples:
+              changeTitre:
+                summary: Change le genre
+                value:
+                  id: 1
+                  name: "Nouveau genre"
+              
+      responses:
+        200:
+          description: category updated
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Catégorie'
+        404:
+          description: not found
 
- 
+  /categorie/{id}:
+    get: 
+      tags:
+        - Categories
+      summary: get category by id
+      parameters:
+          - name: id
+            in: path
+            required: true
+            schema: 
+              type: integer
+      responses:
+        200:
+          description: the film
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Catégorie'
+
+        400:
+            description: Bad request
+      
+
 
 components:
   schemas:
@@ -245,7 +510,7 @@ components:
           type: string
         Réalisateur:
           type: string
-          example: "nom_realisateur"
+          example: "PraPra"
         DateSortie:
           type: string
           format: date
@@ -253,20 +518,38 @@ components:
         SalleProject:
           items:
             $ref: '#/components/schemas/Salle'
+        Categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Catégorie'
+
+          
+    GetFilm:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        Titre:
+          type: string
+          example: "Midnigth Sun"
+        SalleProject:
+          items:
+            $ref: '#/components/schemas/Salle'
+
     Salle: 
       type: object
       properties:
         Places:
           type: string
-          example: 'A'
-          enum:
-            - A
-            - B
+          enum: ["A", "B"]  
+        capacity:
+          type: number
+          example: 100
         
     Projection:
       allOf:
       - $ref: '#/components/schemas/Films'
-      - $ref: '#/components/schemas/Salle'
       type: object
       properties:
         id:
@@ -276,8 +559,16 @@ components:
           type: string
           format: date
           example: "21:30"
+
+    Catégorie:
+      type: object
+      properties:
+       id:
+        type: integer
+      categorie_name:
+        type: string
     
-       
-        
-      
-  
+    Categories:
+      allOf:
+        - $ref: '#/components/schemas/Catégorie'
+      type: array
