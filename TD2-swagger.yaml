@@ -1,14 +1,14 @@
 openapi: 3.0.1
 info:
-  title: FILM
+  title: MOVIE'S PROGRAM
   description: 'CINEMA STD21001'
   version: 1.0.0
 servers:
 - url: https://std21001.com
 tags:
 - name: Films
+- name: Room
 - name: Projection
-- name: Categories
 
 paths:
   /film:
@@ -65,20 +65,20 @@ paths:
                   $ref: '#/components/schemas/Films'
         400:
           description: Bad request
+          content: {}
+            
     put:
       tags:
       - Films
-      summary: Update all informations about film
+      summary: modifies entirely a film list
       operationId: UpdatingIntegratefilm
       description: Update existing film
-      requestBody:
-        description: film to be changed
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/Films'
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: 
+            type: integer
       responses:
           200:
             description: film Updated
@@ -87,7 +87,7 @@ paths:
                 schema:
                   type: array
                   items:
-                    $ref: '#/components/schemas/Films'
+                    $ref: '#/components/schemas/CreateFilms'
           400:
             description: Bad request
     patch:
@@ -96,10 +96,10 @@ paths:
       summary: Update existing film 
       description: |
         Possible updates openapi:
-        * titre: change
-        * date_sortie: change
-        * durée: change
-        * salle_projection: change
+        * title: change
+        * release_date: change
+        * duration: change
+        * room_project: change
       operationId: UpdateExistingfilm
       requestBody:
         required: true
@@ -108,24 +108,24 @@ paths:
             schema:
                 $ref: '#/components/schemas/Films'
             examples:
-              changeTitre:
-                summary: Change titre
-                description: How to change titre
+              changeTitle:
+                summary: Change the title
+                description: How to change title
                 value:
                   id: 1
-                  name: "Nouveau titre"
+                  name: "New title"
               changeDateSortie:
-                summary: Changer la date de sortie 
+                summary: Change release date
                 value:
                   id: 1
-                  name: "date de sortie"
+                  name: "release date"
               changeDurée:
-                summary: Changer la durée du film
+                summary: Change duration
                 value:
                   id: 1
                   durée: "1:57:03"
               changeRoom:
-                summary: changer la salle de projection
+                summary: changer the room of projection
                 value:
                   id: 1
                   enum: [A,B]
@@ -206,7 +206,7 @@ paths:
       delete:
         tags:
           - Films
-        summary: delete a film by identifier
+        summary: deletes a projection by referring to its id
         operationId: delete a film
         parameters:
           - name: id
@@ -216,10 +216,114 @@ paths:
               type: integer
         responses:
           200:
-            description: film deleted
-            content: {}
+            description: Success
+            content:
+              text/plain:
+                schema:
+                  type: string
+                  example: "Returns the id of the deleted projection"
           401:
             description: Unauthorized 
+            content: {}
+              
+  /film/?category:
+    get:
+      tags:
+      - Films
+      summary: Get all films by categories
+      operationId: getFilmsCategory 
+      description: 'Get all films by categories'
+      parameters:
+      - name: Categories
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: List of films by categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Films'
+        400:
+          description: Bad request
+  /film/week:
+    get:
+      tags:
+      - Films
+      summary: Get films each week
+      operationId: getFilmsWeek 
+      description: 'Get all films each week'
+      parameters:
+      - name: WeekDate
+        in: path
+        required: true
+        schema:
+          type: string
+          format: date
+      
+      responses:
+        200:
+          description: List of films for the week
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Weekly'
+        400:
+          description: Bad request
+  /room:
+    get: 
+      tags:
+        - Room
+      summary: Get all rooms
+      operationId: getRooms
+      description: 'Get rooms with details'
+      parameters:
+      - name: rooms
+        in: query
+        schema:
+          type: integer
+      responses:
+        200:
+          description: the rooms
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Room'
+        400:
+          description: bad request
+  /room/{id}:
+    get: 
+      tags:
+        - Room
+      summary: Get a room by identifier
+      operationId: getAroom
+      description: 'Get room by identifier'
+      parameters:
+        - name: room
+          in: path
+          required: true
+          schema:
+           type: integer
+      responses:
+        200:
+          description: the room
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Room'
+        400:
+          description: bad request
+  
   /projection:
     get:
       tags:
@@ -245,7 +349,7 @@ paths:
               schema: 
                 type: array
                 items: 
-                  $ref: '#/components/schemas/GetFilm'
+                  $ref: '#/components/schemas/Projection'
         400:
           description: bad request
     post:
@@ -260,7 +364,7 @@ paths:
             schema: 
               type: array
               items:
-                $ref: '#/components/schemas/Projection'
+                $ref: '#/components/schemas/NewProjection'
       responses:
         200:
           description: success
@@ -269,7 +373,7 @@ paths:
               schema: 
                 type: array
                 items:
-                  $ref: '#/components/schemas/Films'
+                  $ref: '#/components/schemas/NewProjection'
         400:
           description: Bad request
     put:
@@ -291,7 +395,7 @@ paths:
               schema: 
                 type: array
                 items:
-                  $ref: '#/components/schemas/Projection'
+                  $ref: '#/components/schemas/NewProjection'
         400:
           description: Bad request
     patch:
@@ -300,8 +404,8 @@ paths:
       summary: upadate existing projection
       description: |
         Possible updates openapi:
-          * titre: change
-          * salle_projection: change
+          * title: change
+          * projection_room: change
           * diffusion: change
       operationId: projectUpdated
       requestBody:
@@ -312,17 +416,17 @@ paths:
                 $ref: '#/components/schemas/Projection'
             examples:
               changeTitre:
-                summary: Change titre
+                summary: Change title
                 value:
                   id: 1
-                  name: "Nouveau titre"
+                  name: "New title"
               changeRoom:
-                summary: changer la salle de projection
+                summary: change the projection room
                 value:
                   id: 1
                   enum: [A,B]
               changeDiffusion:
-                summary: changer l'heure de diffusion
+                summary: change broadcast time
                 value:
                   id: 2
                   hour: "18:00"
@@ -338,6 +442,60 @@ paths:
         404:
           description: not found
   /projection/{id}:
+    get:
+      tags:
+        - Projection
+      summary: get the projection by specified id
+      operationId: getProjection
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Projection"
+        400:
+          description: Error
+          content: {}
+    put:
+      tags:
+        - Projection
+      summary: allows you to modify projection data except its id
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        description: new projection
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+              allOf:
+                - $ref: "#/components/schemas/NewProjection"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Projection"
+        400:
+          description: Error
+          content: {}
+
     delete:
       tags:
         - Projection
@@ -356,135 +514,7 @@ paths:
           content: {}
         401:
           description: Unauthorized 
-  /categorie:
-    get: 
-      tags:
-        - Categories
-      summary: get all categories
-      description: categories
-      operationId: getCategories
-      parameters:
-        - name: id
-          in: query
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: list of categories
-          content:
-            application/json:
-              schema: 
-                type: array
-                items:
-                  $ref: '#/components/schemas/Categories'
-        400:
-          description: Bad request
-          content: {}
-    post:
-      tags:
-        - Categories
-      summary: create new category
-      operationId: newCategory
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: 
-              type: array
-              items:
-                $ref: '#/components/schemas/Catégorie'
-      responses:
-        200:
-          description: success
-          content:
-            application/json:
-              schema: 
-                type: array
-                items:
-                  $ref: '#/components/schemas/Catégorie'
-        400:
-          description: Bad request
-    put:
-      tags:
-        - Categories
-      summary: update categorie
-      operationId: update all about category
-      parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: integer
-      responses:
-        200:
-          description: success
-          content:
-            application/json:
-              schema: 
-                type: array
-                items:
-                  $ref: '#/components/schemas/Catégorie'
-        400:
-          description: Bad request
-    patch:
-      tags:
-        - Categories
-      summary: update categorie partially
-      description: |
-        Possible updates openapi:
-          * categorie_name: chage
-      operationId: categoUpdated
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-                $ref: '#/components/schemas/Catégorie'
-            examples:
-              changeTitre:
-                summary: Change le genre
-                value:
-                  id: 1
-                  name: "Nouveau genre"
-              
-      responses:
-        200:
-          description: category updated
-          content:
-            application/json:
-              schema: 
-                type: array
-                items:
-                  $ref: '#/components/schemas/Catégorie'
-        404:
-          description: not found
-
-  /categorie/{id}:
-    get: 
-      tags:
-        - Categories
-      summary: get category by id
-      parameters:
-          - name: id
-            in: path
-            required: true
-            schema: 
-              type: integer
-      responses:
-        200:
-          description: the film
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Catégorie'
-
-        400:
-            description: Bad request
-      
-
+  
 
 components:
   schemas:
@@ -517,32 +547,20 @@ components:
           example: "2022-07-27"
         SalleProject:
           items:
-            $ref: '#/components/schemas/Salle'
+            $ref: '#/components/schemas/Room'
         Categories:
           type: array
           items:
-            $ref: '#/components/schemas/Catégorie'
+            $ref: '#/components/schemas/Categorie'
 
-          
-    GetFilm:
+    Room: 
       type: object
       properties:
-        id:
-          type: integer
-          example: 1
-        Titre:
+        Code:
           type: string
-          example: "Midnigth Sun"
-        SalleProject:
-          items:
-            $ref: '#/components/schemas/Salle'
-
-    Salle: 
-      type: object
-      properties:
-        Places:
-          type: string
-          enum: ["A", "B"]  
+          enum: 
+            - A
+            - B  
         capacity:
           type: number
           example: 100
@@ -550,6 +568,7 @@ components:
     Projection:
       allOf:
       - $ref: '#/components/schemas/Films'
+      - $ref: '#/components/schemas/Room'
       type: object
       properties:
         id:
@@ -557,18 +576,48 @@ components:
           example: 10
         diffusion:
           type: string
-          format: date
-          example: "21:30"
+          format: date-time
+          example: "2022-07-27 T22:35:18.068z"
 
-    Catégorie:
+    NewProjection:
       type: object
       properties:
-       id:
-        type: integer
-      categorie_name:
+        FilmId:
+          type: integer
+          example: 1
+        RoomId:
+          type: string
+          example: A
+        diffusion: 
+          type: string
+          format: date-time
+
+    NewCategorie:
+      type: object
+      properties:
+       Type:
         type: string
+        example: Dramatic
     
-    Categories:
+    Categorie:
       allOf:
-        - $ref: '#/components/schemas/Catégorie'
-      type: array
+        - $ref: '#/components/schemas/NewCategorie'
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 18
+        description: 
+          type: string
+          uniqueItems: true
+        creationDate:
+          type: string
+          format: date
+          example: "2022-01-08"
+        
+    Weekly:
+      oneOf:
+        - $ref: '#/components/schemas/Projection'
+        - $ref: '#/components/schemas/Projection'
+        - $ref: '#/components/schemas/Projection'
+       
